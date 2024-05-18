@@ -1,9 +1,8 @@
 from customtkinter import *
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image
 import sys
 import cv2
-import imutils
 
 class Ventana():
 
@@ -24,6 +23,7 @@ class Ventana():
 
         self.colorRojo = "#ff0000"
         self.rojoOscuro = "#C20000"
+        self.colorBlanco = "#FFFFFF"
 
         self.app.title("Fault Detector")
         self.app.after(201, lambda :self.app.iconbitmap('Imagenes/Icono.ico'))
@@ -105,7 +105,7 @@ class Ventana():
 
                  valor += 0.006
                  barraCarga.set(valor)
-                 Frame.after(8, barraProgreso)
+                 Frame.after(6, barraProgreso)
             
             else:
 
@@ -246,7 +246,7 @@ class Ventana():
                           corner_radius = 0,
                           text = "Subir Clip",
                           font = ("Helvetica", 16),
-                          command = lambda : self.obtenerVideo(Frame, segundoFrameAncho, segundoFrameLargo))
+                          command = lambda : self.obtenerVideo(Frame, Ancho, Largo))
         
         boton.grid(row = 0, column = 0)
 
@@ -263,33 +263,171 @@ class Ventana():
 
                 widget.destroy() 
 
-            captura = cv2.VideoCapture(archivo)
+            captura = cv2.VideoCapture(archivo)   # Lectura del archivo de video.
 
-            texto = CTkLabel(master = Frame,
+            #Reestructuracion del frame para crear un reproductor de video.
+
+            Frame.rowconfigure(0, weight = 1)
+            Frame.rowconfigure(1, weight = 1)
+            Frame.columnconfigure(0, weight = 1)
+
+            primerFrameAncho = self.obtenerAncho(Ancho, 100)
+            primerFrameLargo = self.obtenerLargo(Largo, 90)
+
+            segundoFrameAncho = self.obtenerAncho(Ancho, 100)
+            segundoFrameLargo = self.obtenerLargo(Largo, 10)
+
+            primerFrame = CTkFrame(master = Frame,
+                                   width = primerFrameAncho,
+                                   height = primerFrameLargo,
+                                    )
+            
+            primerFrame.grid(row = 0, column = 0, sticky = "nsew")
+
+            primerFrame.rowconfigure(0, weight = 1)
+            primerFrame.columnconfigure(0, weight = 1)
+
+            texto = CTkLabel(master = primerFrame,
                              text = "",
-                             width = Ancho,
-                             height = Largo)
+                             width = primerFrameAncho,
+                             height = primerFrameLargo,
+                             )
             
             texto.grid(row = 0, column = 0, sticky = "nsew")
 
-            self.visualizar(texto, captura, Ancho, Largo)
+            segundoFrame = CTkFrame(master = Frame,
+                                    width = segundoFrameAncho,
+                                    height = segundoFrameLargo,
+                                    )
+            segundoFrame.grid(row = 1, column = 0, sticky = "nsew")
+
+            self.construirBotones(segundoFrame, segundoFrameAncho, segundoFrameLargo)
+            
+            self.visualizar(texto, captura, primerFrameAncho, primerFrameLargo)
+
+    def construirBotones(self, Frame, Ancho, Largo):
+
+        Frame.rowconfigure(0, weight = 0)
+        Frame.rowconfigure(1, weight = 1)
+        Frame.columnconfigure(0, weight = 1)
+
+        primerFrameAncho = self.obtenerAncho(Ancho, 100)
+        primerFrameLargo = self.obtenerLargo(Largo, 30)
+
+        segundoFrameAncho = self.obtenerAncho(Ancho, 100)
+        segundoFrameLargo = self.obtenerLargo(Largo, 70)
+
+        primerFrame = CTkFrame(master = Frame,
+                               width = primerFrameAncho,
+                               height = primerFrameLargo,
+                               fg_color = "red")
+        
+        primerFrame.grid(row = 0, column = 0, sticky = "nsew")
+
+        segundoFrame = CTkFrame(master = Frame,
+                                width = segundoFrameAncho,
+                                height = segundoFrameLargo,
+                                )
+        
+        segundoFrame.grid(row = 1, column = 0, sticky = "nsew")
+
+        segundoFrame.rowconfigure(0, weight = 1)
+        segundoFrame.columnconfigure(0, weight = 1)
+        segundoFrame.columnconfigure(1, weight = 1)
+        segundoFrame.columnconfigure(2, weight = 2)
+
+        anchoContenedores =  self.obtenerAncho(segundoFrameAncho, 33.3)
+        largoContenedores = self.obtenerLargo(segundoFrameLargo, 100)
+
+        anchoBotones =  self.obtenerAncho(anchoContenedores, 20)
+        largoBotones = self.obtenerLargo(largoContenedores, 100)
+
+
+        cotenedoresBotones = []
+
+        for i in range(3):
+
+            Contenedor = CTkFrame(master = segundoFrame,
+                                             height = anchoContenedores,
+                                             width = largoContenedores)
+            
+            #if((i + 1) % 2 == 0):
+
+            #Es requerido alinear los dos botones aldeaños al central para evitar tener los botones tan dispersos
+    
+            Contenedor.grid(row = 0, column = i, sticky = "nsew")
+
+            cotenedoresBotones.append(Contenedor)
+       
+        regresarBoton = CTkButton(master = cotenedoresBotones[0], 
+                                  width = anchoBotones,
+                                  height = largoBotones,
+                                  text = "",
+                                  fg_color = self.primerGris,
+                                  corner_radius = 0)
+        
+        reanudarBoton = CTkImage(light_image = Image.open("Imagenes/Inicio.png"), 
+                                  dark_image = Image.open("Imagenes/Inicio.png"),
+                                  size = (20, 20))
+        
+        pausarBoton = CTkButton(master = cotenedoresBotones[1],
+                                width = anchoBotones,
+                                height = largoBotones,
+                                text = "",
+                                fg_color = self.primerGris,
+                                corner_radius = 0,
+                                image = reanudarBoton,
+                                command = lambda : self.cambiarEstado(Frame)
+                                )
+        
+        adelantarBoton = CTkButton(master = cotenedoresBotones[2],
+                                   width = anchoBotones,
+                                   height = largoBotones,
+                                   text = "",
+                                   fg_color = self.primerGris,
+                                   corner_radius = 0)
+        
+        regresarBoton.grid(row = 0, column = 0)
+        pausarBoton.grid(row = 0, column = 1)
+        adelantarBoton.grid(row = 0, column = 2)
+
+    def cambiarEstado(self, Frame):
+
+        pass
 
     def visualizar(self, Widget, Video, Ancho, Largo):
 
         ret, frame = Video.read()
 
+        if not ret:
+
+            Video.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reinicia el video al principio
+            ret, frame = Video.read()  # Lee el primer frame nuevamente
+
         if (ret == True):
 
-            frame = imutils.resize(frame, width = Ancho)
+            largoVideo, anchoVideo, _ = frame.shape
+
+            #Calculo la proporcion del video en relacion al tamaño del label
+
+            proporcionLargo = Largo / largoVideo
+            proporcionAncho = Ancho / anchoVideo
+
+            #Escojo el menor para mantener la relacion de aspecto, ya que de otra manera la imagen desborda el contenedor.
+
+            escala = min(proporcionLargo, proporcionAncho)
+
+            anchoNuevo = int(anchoVideo * escala)
+            largoNuevo = int(largoVideo * escala)
+
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             fotograma = Image.fromarray(frame)
-            fotogramas = ImageTk.PhotoImage(image = fotograma)
-            imagenCTk = CTkImage(light_image= fotograma, dark_image = fotograma)
+            imagenCTk = CTkImage(light_image= fotograma, dark_image = fotograma, size = (anchoNuevo, largoNuevo))
 
             Widget.configure(image = imagenCTk)
             Widget.image = imagenCTk
-            Widget.after(10, self.visualizar(Widget, Video, Ancho, Largo))
+            Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo)         
 
     def generarResultados(self, Frame, Ancho, Largo):
 
