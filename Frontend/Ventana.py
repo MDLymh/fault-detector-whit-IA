@@ -1,7 +1,9 @@
 from customtkinter import *
 from tkinter import filedialog
-from PIL import Image   
+from PIL import Image, ImageTk
 import sys
+import cv2
+import imutils
 
 class Ventana():
 
@@ -244,16 +246,50 @@ class Ventana():
                           corner_radius = 0,
                           text = "Subir Clip",
                           font = ("Helvetica", 16),
-                          command = lambda : self.obtenerVideo())
+                          command = lambda : self.obtenerVideo(Frame, segundoFrameAncho, segundoFrameLargo))
         
         boton.grid(row = 0, column = 0)
 
-    def obtenerVideo(self):
+    def obtenerVideo(self, Frame, Ancho, Largo):
 
         archivo = filedialog.askopenfilename(initialdir="/", 
                                              title="Seleccionar archivo", 
-                                             filetypes=(("Archivos de texto", "*.txt"), ("Todos los archivos", "*.*")))
+                                             filetypes=(("Archivos de video", ".mp4"), ("Archivos de video", ".avi")))
         print("Archivo seleccionado:", archivo)
+
+        if(len(archivo) > 0):
+
+            for widget in Frame.winfo_children():
+
+                widget.destroy() 
+
+            captura = cv2.VideoCapture(archivo)
+
+            texto = CTkLabel(master = Frame,
+                             text = "",
+                             width = Ancho,
+                             height = Largo)
+            
+            texto.grid(row = 0, column = 0, sticky = "nsew")
+
+            self.visualizar(texto, captura, Ancho, Largo)
+
+    def visualizar(self, Widget, Video, Ancho, Largo):
+
+        ret, frame = Video.read()
+
+        if (ret == True):
+
+            frame = imutils.resize(frame, width = Ancho)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            fotograma = Image.fromarray(frame)
+            fotogramas = ImageTk.PhotoImage(image = fotograma)
+            imagenCTk = CTkImage(light_image= fotograma, dark_image = fotograma)
+
+            Widget.configure(image = imagenCTk)
+            Widget.image = imagenCTk
+            Widget.after(10, self.visualizar(Widget, Video, Ancho, Largo))
 
     def generarResultados(self, Frame, Ancho, Largo):
 
