@@ -15,6 +15,7 @@ class Ventana():
         self.app.geometry(f"{self.Ancho}x{self.Largo}")
 
         self.Reproducir = True # Varible empleada para detener el video si es deseado con un boton.
+        self.Skip = None
 
         #Paleta Colores
 
@@ -28,7 +29,7 @@ class Ventana():
         self.colorBlanco = "#FFFFFF"
 
         self.app.title("Fault Detector")
-        self.app.after(201, lambda :self.app.iconbitmap('Imagenes/Icono.ico'))
+        self.app.after(201, lambda :self.app.iconbitmap('Frontend/Imagenes/Icono.ico'))
 
         self.pantallaCarga(self.app)
        
@@ -67,7 +68,7 @@ class Ventana():
         anchoImagenFrame = self.obtenerAncho(self.Ancho, 100)
         largoImagenFrame = self.obtenerLargo(self.Largo, 80)
 
-        Imagen = Image.open("Imagenes/tarjetaRoja.png")
+        Imagen = Image.open("Frontend/Imagenes/tarjetaRoja.png")
 
         Ancho, Largo = Imagen.size
 
@@ -76,8 +77,8 @@ class Ventana():
 
         imagenCTK = CTkImage(Imagen, size=(Ancho, Largo))
 
-        Imagen = CTkImage(light_image = Image.open("Imagenes/tarjetaRoja.png"), 
-                          dark_image = Image.open("Imagenes/tarjetaRoja.png"))
+        Imagen = CTkImage(light_image = Image.open("Frontend/Imagenes/tarjetaRoja.png"), 
+                          dark_image = Image.open("Frontend/Imagenes/tarjetaRoja.png"))
         
         contenedor = CTkLabel(master = Frame,
                               text = "",
@@ -133,8 +134,8 @@ class Ventana():
         primerFrameAncho = self.obtenerAncho(self.Ancho, 100)
         primerFrameLargo = self.obtenerLargo(self.Largo, 5)
 
-        segundoFrameAncho = self.obtenerAncho(self.Ancho, 100)
-        segundoFrameLargo = self.obtenerLargo(self.Largo, 65)
+        self.segundoFrameAncho = self.obtenerAncho(self.Ancho, 100)
+        self.segundoFrameLargo = self.obtenerLargo(self.Largo, 65)
 
         tercerFrameAncho = self.obtenerAncho(self.Ancho, 100)
         tercerFrameLargo = self.obtenerLargo(self.Largo, 30)
@@ -148,15 +149,15 @@ class Ventana():
 
         self.generarNavegacion(primerFrame, primerFrameAncho, primerFrameLargo)
 
-        segundoFrame = CTkFrame (master = Ventana,
-                            width = segundoFrameAncho,
-                            height = segundoFrameLargo,
+        self.segundoFrame = CTkFrame (master = Ventana,
+                            width = self.segundoFrameAncho,
+                            height = self.segundoFrameLargo,
                             fg_color = self.colorFondo,
                             corner_radius = 0)
 
-        segundoFrame.grid(row = 1, column = 0, sticky = "nsew")
+        self.segundoFrame.grid(row = 1, column = 0, sticky = "nsew")
 
-        self.displayVideo(segundoFrame, segundoFrameAncho, segundoFrameLargo)
+        self.displayVideo(self.segundoFrame, self.segundoFrameAncho, self.segundoFrameLargo)
 
         tercerFrame = CTkFrame (master = Ventana,
                            width = tercerFrameAncho,
@@ -186,9 +187,9 @@ class Ventana():
         
     def opcionesMenu(self, Valor):
 
-        if(Valor == "Opciones"):
+        if(Valor == "Subir"):
 
-            self.obtenerVideo()
+            self.obtenerVideo(self.segundoFrame, self.segundoFrameAncho, self.segundoFrameLargo)
 
         elif(Valor == "Salir"):
 
@@ -216,7 +217,7 @@ class Ventana():
 
         primerFrame.grid(row = 0, column = 0, sticky = "nsew")
         
-        Imagen = Image.open("Imagenes/Video.png")
+        Imagen = Image.open("Frontend/Imagenes/Video.png")
 
         imagenAncho, imagenLargo = Imagen.size
 
@@ -363,8 +364,8 @@ class Ventana():
         contenedorBotones.columnconfigure(1, weight = 1)
         contenedorBotones.columnconfigure(2, weight = 1)
 
-        atrasarIcono =  CTkImage(light_image = Image.open("Imagenes/Atrasar.png"),
-                        dark_image = Image.open("Imagenes/Atrasar.png"),
+        atrasarIcono =  CTkImage(light_image = Image.open("Frontend/Imagenes/Atrasar.png"),
+                        dark_image = Image.open("Frontend/Imagenes/Atrasar.png"),
                         size = (20, 20))
         
         regresarBoton = CTkButton(master = contenedorBotones,
@@ -373,10 +374,11 @@ class Ventana():
                                   text = "",
                                   fg_color = self.primerGris,
                                   corner_radius = 0,
-                                  image = atrasarIcono)
+                                  image = atrasarIcono,
+                                  command = lambda : self.saltar(False))
         
-        inicioIcono = CTkImage(light_image = Image.open("Imagenes/Inicio.png"), 
-                                  dark_image = Image.open("Imagenes/Inicio.png"),
+        inicioIcono = CTkImage(light_image = Image.open("Frontend/Imagenes/Inicio.png"), 
+                                  dark_image = Image.open("Frontend/Imagenes/Inicio.png"),
                                   size = (20, 20))
         
         pausarBoton = CTkButton(master = contenedorBotones,
@@ -389,8 +391,8 @@ class Ventana():
                                 command = lambda : self.cambiarEstado(pausarBoton)
                                 )
         
-        adelantarIcono = CTkImage(light_image = Image.open("Imagenes/Adelantar.png"), 
-                                  dark_image = Image.open("Imagenes/Adelantar.png"),
+        adelantarIcono = CTkImage(light_image = Image.open("Frontend/Imagenes/Adelantar.png"), 
+                                  dark_image = Image.open("Frontend/Imagenes/Adelantar.png"),
                                   size = (20, 20))        
         
         adelantarBoton = CTkButton(master = contenedorBotones,
@@ -399,7 +401,9 @@ class Ventana():
                                    text = "",
                                    fg_color = self.primerGris,
                                    corner_radius = 0,
-                                   image = adelantarIcono)
+                                   image = adelantarIcono,
+                                   command = lambda : self.saltar(True)
+                                   )
         
         regresarBoton.grid(row = 0, column = 0)
         pausarBoton.grid(row = 0, column = 1, padx = 2)
@@ -409,8 +413,8 @@ class Ventana():
        
         if(self.Reproducir == True):
 
-            detenerIcono = CTkImage(light_image = Image.open("Imagenes/Detener.png"), 
-                                    dark_image = Image.open("Imagenes/Detener.png"),
+            detenerIcono = CTkImage(light_image = Image.open("Frontend/Imagenes/Detener.png"), 
+                                    dark_image = Image.open("Frontend/Imagenes/Detener.png"),
                                     size = (20, 20))
 
             Widget.configure(image = detenerIcono)
@@ -419,27 +423,72 @@ class Ventana():
 
         else:
 
-            inicioIcono = CTkImage(light_image = Image.open("Imagenes/Inicio.png"), 
-                                    dark_image = Image.open("Imagenes/Inicio.png"),
+            inicioIcono = CTkImage(light_image = Image.open("Frontend/Imagenes/Inicio.png"), 
+                                    dark_image = Image.open("Frontend/Imagenes/Inicio.png"),
                                     size = (20, 20))
 
             Widget.configure(image = inicioIcono)
 
             self.Reproducir = True
 
-            self.visualizar()
+    def saltar(self, Estado):
+        
+        if(Estado == False):
+            
+            self.Skip = False
+
+        else:
+
+            self.Skip = True           
 
     def visualizar(self, Widget, Video, Ancho, Largo, tasaCambio, primerIteracion):
 
+        if (self.Reproducir == False): # Pausar video
+             
+            Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo, tasaCambio, 0)
+            return 
+                     
         if(primerIteracion == 1): # Unicamente ocurre cuando el video se carga por primera vez.
 
             self.barraCarga.set(0)            
             self.barraCarga.start() # Volver a empezar mi barra de carga
 
-        if (self.Reproducir == False): # Detiene el video con el boton de pausa
+        if(self.Skip == True):
 
-            return
-        
+            #Fotograma Actual
+
+            fps = Video.get(cv2.CAP_PROP_FPS)
+            adelantar = fps * 2 
+
+            #Porcentaje Barra Actual
+
+            valorPrevio = self.barraCarga.get()
+            valorSiguiente = valorPrevio + (tasaCambio * (fps * 2))
+            self.barraCarga.set(valorSiguiente)
+
+            frameActual = Video.get(cv2.CAP_PROP_POS_FRAMES)
+            Video.set(cv2.CAP_PROP_POS_FRAMES, frameActual + adelantar)
+
+            self.Skip = None
+
+        elif(self.Skip == False):
+
+            #Fotograma Actual
+
+            fps = Video.get(cv2.CAP_PROP_FPS)
+            adelantar = fps * 2 
+
+            #Porcentaje Barra Actual
+
+            valorPrevio = self.barraCarga.get()
+            valorSiguiente = valorPrevio - (tasaCambio * (fps * 2))
+            self.barraCarga.set(valorSiguiente)
+
+            frameActual = Video.get(cv2.CAP_PROP_POS_FRAMES)
+            Video.set(cv2.CAP_PROP_POS_FRAMES, frameActual - adelantar)
+
+            self.Skip = None
+
         ret, frame = Video.read()
 
         if not ret:
@@ -450,35 +499,35 @@ class Ventana():
 
         if (ret == True):
             
-            carga = self.barraCarga.get()
-            valor = carga + tasaCambio
-            self.barraCarga.set(valor)
-
-            largoVideo, anchoVideo, _ = frame.shape
-
-            #Calculo la proporcion del video en relacion al tamaño del label
-
-            proporcionLargo = Largo / largoVideo
-            proporcionAncho = Ancho / anchoVideo
-
-            #Escojo el menor para mantener la relacion de aspecto, ya que de otra manera la imagen desborda el contenedor.
-
-            escala = min(proporcionLargo, proporcionAncho)
-
-            anchoNuevo = int(anchoVideo * escala)
-            largoNuevo = int(largoVideo * escala)
-
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            fotograma = Image.fromarray(frame)
-            imagenCTk = CTkImage(light_image= fotograma, dark_image = fotograma, size = (anchoNuevo, largoNuevo))
-
-            Widget.configure(image = imagenCTk)
-            Widget.image = imagenCTk
-
             if (self.Reproducir == True):
-                 
-                 Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo, tasaCambio, 0)         
+
+                carga = self.barraCarga.get()
+                valor = carga + tasaCambio
+                self.barraCarga.set(valor)
+
+                largoVideo, anchoVideo, _ = frame.shape
+
+                #Calculo la proporcion del video en relacion al tamaño del label
+
+                proporcionLargo = Largo / largoVideo
+                proporcionAncho = Ancho / anchoVideo
+
+                #Escojo el menor para mantener la relacion de aspecto, ya que de otra manera la imagen desborda el contenedor.
+
+                escala = min(proporcionLargo, proporcionAncho)
+
+                anchoNuevo = int(anchoVideo * escala)
+                largoNuevo = int(largoVideo * escala)
+
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                fotograma = Image.fromarray(frame)
+                imagenCTk = CTkImage(light_image= fotograma, dark_image = fotograma, size = (anchoNuevo, largoNuevo))
+
+                Widget.configure(image = imagenCTk)
+                Widget.image = imagenCTk
+
+                Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo, tasaCambio, 0)   
 
     def generarResultados(self, Frame, Ancho, Largo):
 
@@ -515,7 +564,3 @@ class Ventana():
                                 corner_radius = 0)
 
         segundoFrame.grid(row = 0, column = 1, sticky = "nsew")
-
-if __name__ == "__main__":
-
-    Ventana()
