@@ -13,13 +13,7 @@ def grabarPantalla():
         if key == 27:
             break
     cv2.destroyAllWindows
-    
-<<<<<<< HEAD
-def crearClip():
-    video = VideoFileClip("falta.avi")
-    cortado = video.subclip(11, 15)
-    cortado.write_videofile("clip.avi")
-=======
+
 def crearClip(file_in,file_out):
     cap = cv2.VideoCapture(file_in)
 
@@ -58,6 +52,3 @@ def crearClip(file_in,file_out):
     out.release()
 
     print(f"El video se ha procesado correctamente y se ha guardado como '{file_out}'.")
-
-crearClip("screen_recording.avi","clip.avi")
->>>>>>> f9af9f844a05c17f0575dde6e6c5a682e54b9c29
