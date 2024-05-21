@@ -1,5 +1,7 @@
 from customtkinter import *
 from tkinter import filedialog
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image
 import sys
 import cv2
@@ -214,15 +216,16 @@ class Ventana():
             if(len(Direccion) > 0):
                 
                 self.Grabacion = Clip.BrowserRecorder(Direccion)
-                self.Grabacion.start_browser()
-                
+                self.Grabacion.start_recording()
+
+        elif(Valor == "Detener"):
+
+            self.Grabacion.close_browser()
+            Grabar.crearClip("screen_recording.avi", "Salida.avi")
+
         elif(Valor == "Salir"):
 
             sys.exit()
-
-    def detenerGrabacion(self):
-        
-        self.Grabacion.close_browser()
 
     def displayVideo(self, Frame, Ancho, Largo):
 
@@ -299,7 +302,8 @@ class Ventana():
                 widget.destroy() 
             
             Resultados = testeador.predict_new_video_with_percentage(archivo)
-            print(Resultados)
+            
+            self.modificarContenedores(Resultados)
 
             captura = cv2.VideoCapture(archivo)   # Lectura del archivo de video.
             cantidadFotogramas = int(captura.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -560,16 +564,51 @@ class Ventana():
                 Widget.configure(image = imagenCTk)
                 Widget.image = imagenCTk
 
-                Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo, tasaCambio, 0)   
+                Widget.after(10, self.visualizar, Widget, Video, Ancho, Largo, tasaCambio, 0)
 
+    def modificarContenedores(self, String):
+
+        self.texto.delete("1.0", "end")
+        self.texto.insert("1.0", "Fault Detector [Metrics]\n\n")
+
+        if(String[1] > String[0]):
+
+            self.texto.insert("3.0", "Prediccion: No Falta\n\n")
+
+        else:
+
+            self.texto.insert("3.0", "Prediccion: Falta\n\n")
+
+        self.texto.insert("5.0", "Probabilidad Falta: {} \n".format(String[0]))  
+        self.texto.insert("6.0", "Probabilidad No Falta: {} \n".format(String[1]))
+
+        Nombres = ['Falta', 'No Falta']
+        Valores = [String[0], String[1]]  # Assuming Resultados is defined elsewhere
+        Colores = [self.colorRojo, '#0000FF']
+
+        px = 1/plt.rcParams['figure.dpi']  # Pixels
+
+        Figura, ax = plt.subplots(figsize=(self.frameAncho*px, self.frameLargo*px))
+        pie = ax.pie(Valores, labels=Nombres, autopct='%1.1f%%', colors=Colores)
+        ax.set_aspect('equal')
+
+        Figura.patch.set_facecolor(self.segundoGris)
+
+        for text in pie[1]:
+             text.set_color('white')
+
+        canvas = FigureCanvasTkAgg(Figura, master=self.graficarFrame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0, column=0, sticky = "nsew")
+    
     def generarResultados(self, Frame, Ancho, Largo):
 
         Frame.rowconfigure(0, weight = 1)
         Frame.columnconfigure(0, weight = 1)
         Frame.columnconfigure(1, weight = 1)
 
-        frameAncho = self.obtenerAncho(Ancho, 50)
-        frameLargo = self.obtenerLargo(Largo, 50)
+        self.frameAncho = self.obtenerAncho(Ancho, 50)
+        self.frameLargo = self.obtenerLargo(Largo, 50)
 
         primerFrame = CTkFrame(master = Frame,
                                width = Ancho,
@@ -581,19 +620,22 @@ class Ventana():
         primerFrame.rowconfigure(0, weight = 1)
         primerFrame.columnconfigure(0, weight = 1)
 
-        texto = CTkTextbox(master = primerFrame,
-                           width = frameAncho,
-                           height = frameLargo,
+        self.texto = CTkTextbox(master = primerFrame,
+                           width = self.frameAncho,
+                           height = self.frameLargo,
                            font = ("Consolas", 16))
         
-        texto.grid(row = 0, column  = 0, sticky = "nsew")
+        self.texto.grid(row = 0, column  = 0, sticky = "nsew")
 
-        texto.insert("0.0", "Fault Detector [Metrics]")
+        self.texto.insert("1.0", "Fault Detector [Metrics]")
         
-        segundoFrame = CTkFrame(master = Frame,
-                                width = frameAncho,
-                                height = frameLargo, 
+        self.graficarFrame = CTkFrame(master = Frame,
+                                width = self.frameAncho,
+                                height = self.frameLargo, 
                                 fg_color = self.segundoGris,
                                 corner_radius = 0)
 
-        segundoFrame.grid(row = 0, column = 1, sticky = "nsew")
+        self.graficarFrame.grid(row = 0, column = 1, sticky = "nsew")
+
+        self.graficarFrame.rowconfigure(0, weight = 1)
+        self.graficarFrame.columnconfigure(0, weight = 1)
