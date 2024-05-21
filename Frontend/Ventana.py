@@ -5,6 +5,8 @@ import sys
 import cv2
 
 from Backend import Clip
+from Backend import Grabar
+from Entrenamiento_Ia import testeador
 
 class Ventana():
 
@@ -18,6 +20,8 @@ class Ventana():
 
         self.Reproducir = True # Varible empleada para detener el video si es deseado con un boton.
         self.Skip = None
+
+        self.Grabacion = None
 
         #Paleta Colores
 
@@ -176,7 +180,7 @@ class Ventana():
         Frame.rowconfigure(0, weight = 0)
         Frame.columnconfigure(0, weight = 0)
 
-        Valores = ["Opciones", "Subir", "Generar Clip", "Salir"]
+        Valores = ["Opciones", "Subir", "Generar Clip", "Detener", "Salir"]
 
         boton = CTkOptionMenu(master = Frame, 
                                 values = Valores,
@@ -205,15 +209,20 @@ class Ventana():
             
             self.app.after(201, lambda: Mensaje.iconbitmap("Frontend/Imagenes/Icono.ico"))
 
-            Direccion = Mensaje.get_input()
-
+            Direccion = str(Mensaje.get_input())
+    
             if(len(Direccion) > 0):
                 
-                Grabacion = Clip.BrowserRecorder(Direccion)
-            
+                self.Grabacion = Clip.BrowserRecorder(Direccion)
+                self.Grabacion.start_browser()
+                
         elif(Valor == "Salir"):
 
             sys.exit()
+
+    def detenerGrabacion(self):
+        
+        self.Grabacion.close_browser()
 
     def displayVideo(self, Frame, Ancho, Largo):
 
@@ -288,6 +297,9 @@ class Ventana():
             for widget in Frame.winfo_children():
 
                 widget.destroy() 
+            
+            Resultados = testeador.predict_new_video_with_percentage(archivo)
+            print(Resultados)
 
             captura = cv2.VideoCapture(archivo)   # Lectura del archivo de video.
             cantidadFotogramas = int(captura.get(cv2.CAP_PROP_FRAME_COUNT))
