@@ -6,3 +6,7 @@ mss==6.1.0
 pillow==8.4.0
 moviepy==1.0.3
 pywin32==303
+os
+cv2
+pandas
+tensorflow
