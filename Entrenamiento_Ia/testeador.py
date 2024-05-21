@@ -15,8 +15,8 @@ MAX_SEQ_LENGTH = 20
 NUM_FEATURES = 2048
 
 # Data preparation
-train_df = pd.read_csv(r"C:\Users\Javi_\OneDrive\Documentos\Proyecto_Final\fault-detector-whit-IA\Entrenamiento_Ia\train.csv")
-test_df = pd.read_csv(r"C:\Users\Javi_\OneDrive\Documentos\Proyecto_Final\fault-detector-whit-IA\Entrenamiento_Ia\test.csv")
+train_df = pd.read_csv(r"Entrenamiento_Ia\\train.csv")
+test_df = pd.read_csv(r"Entrenamiento_Ia\\test.csv")
 
 def assign_label(tag):
     if tag == "falta":
@@ -105,7 +105,8 @@ def crop_center_square(frame):
     return frame[start_y:start_y + min_dim, start_x:start_x + min_dim]
 
 # Function to predict a new video
-def predict_new_video_with_percentage(video_path, model):
+def predict_new_video_with_percentage(video_path, path = "Entrenamiento_Ia\\Detector_Faltas.keras"):
+    model = keras.models.load_model(path)
     frames = load_video(video_path)
     frames = frames[None, ...]
 
@@ -132,12 +133,10 @@ def predict_new_video_with_percentage(video_path, model):
     print(f"Probabilidad de falta: {probabilities[1]:.2f}%")
     print(f"Probabilidad de no falta: {probabilities[0]:.2f}%")
 
+    return(probabilities[1], probabilities[0])
+
 # Load the model
-model_path = r"C:\Users\Javi_\OneDrive\Documentos\Proyecto_Final\fault-detector-whit-IA\Entrenamiento_Ia\Detector_Faltas.keras"
+model_path = r"Entrenamiento_Ia\\Detector_Faltas.keras"
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"El archivo {model_path} no se encontró.")
 sequence_model = keras.models.load_model(model_path)
-
-# Predict on a new video
-new_video_path = r"C:\Users\Javi_\OneDrive\Documentos\Proyecto_Final\pruebas\prueba"  # Asegúrate de que esta sea una ruta de archivo de video válida
-predict_new_video_with_percentage(new_video_path, sequence_model)
