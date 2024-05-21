@@ -4,6 +4,8 @@ from PIL import Image
 import sys
 import cv2
 
+from Backend import Clip
+
 class Ventana():
 
     def __init__(self):
@@ -26,6 +28,7 @@ class Ventana():
 
         self.colorRojo = "#ff0000"
         self.rojoOscuro = "#C20000"
+        self.rojoHover = "#A50000"
         self.colorBlanco = "#FFFFFF"
 
         self.app.title("Fault Detector")
@@ -173,14 +176,15 @@ class Ventana():
         Frame.rowconfigure(0, weight = 0)
         Frame.columnconfigure(0, weight = 0)
 
-        Valores = ["Opciones", "Subir", "Salir"]
+        Valores = ["Opciones", "Subir", "Generar Clip", "Salir"]
 
         boton = CTkOptionMenu(master = Frame, 
                                 values = Valores,
                                 corner_radius = 0,
                                 command = lambda selection : self.opcionesMenu(selection),
                                 fg_color = self.colorRojo,
-                                button_color = self.rojoOscuro
+                                button_color = self.rojoOscuro,
+                                button_hover_color = self.rojoHover
                                 )   
                 
         boton.grid(row = 0, column = 0)
@@ -191,6 +195,22 @@ class Ventana():
 
             self.obtenerVideo(self.segundoFrame, self.segundoFrameAncho, self.segundoFrameLargo)
 
+        if(Valor == "Generar Clip"):
+
+            Mensaje = CTkInputDialog(title = "Generar Clip",
+                                     text = "Ingresa el link para generar clip: ",
+                                     button_fg_color = self.colorRojo,
+                                     button_hover_color = self.rojoHover
+                                     )
+            
+            self.app.after(201, lambda: Mensaje.iconbitmap("Frontend/Imagenes/Icono.ico"))
+
+            Direccion = Mensaje.get_input()
+
+            if(len(Direccion) > 0):
+                
+                Grabacion = Clip.BrowserRecorder(Direccion)
+            
         elif(Valor == "Salir"):
 
             sys.exit()
@@ -248,6 +268,7 @@ class Ventana():
                           width = self.obtenerAncho(segundoFrameAncho, 10),
                           height = self.obtenerLargo(segundoFrameLargo, 50),
                           fg_color = self.colorRojo,
+                          hover_color =  self.rojoHover,
                           corner_radius = 0,
                           text = "Subir Clip",
                           font = ("Helvetica", 16),
