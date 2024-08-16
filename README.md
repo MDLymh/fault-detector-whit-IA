@@ -23,4 +23,18 @@ https://huggingface.co/keras-io/video-classification-cnn-rnn
 pip install customtkinter
 
 pip install pillow
+
+pip install opencv-python
+
+pip install selenium
+
+pip install webdriver-manager
+
+pip install mss
+
+pip install pywin32
+
+pip install pandas
+
+pip install tensorflow
 ```
