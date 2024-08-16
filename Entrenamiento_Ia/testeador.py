@@ -6,6 +6,11 @@ from tensorflow import keras
 from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.applications.resnet50 import preprocess_input
 
+import sys
+import io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 # Define hyperparameters
 IMG_SIZE = 224
 BATCH_SIZE = 64
