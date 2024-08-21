@@ -36,6 +36,8 @@ pip install mss
 
 pip install pywin32
 
+pip install matplotlib
+
 pip install pandas
 
 pip install tensorflow
