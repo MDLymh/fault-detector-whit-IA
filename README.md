@@ -34,6 +34,8 @@ pip install webdriver-manager
 
 pip install mss
 
+pip install moviepy
+
 pip install pywin32
 
 pip install matplotlib
